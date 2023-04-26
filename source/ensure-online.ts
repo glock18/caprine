@@ -4,7 +4,7 @@ import pWaitFor from 'p-wait-for';
 
 function showWaitDialog(): void {
 	const buttonIndex = dialog.showMessageBoxSync({
-		message: 'You appear to be offline. Caprine requires a working internet connection.',
+		message: 'You appear to be offline. Chaport requires a working internet connection.',
 		detail: 'Do you want to wait?',
 		buttons: [
 			'Wait',

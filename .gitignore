@@ -3,3 +3,5 @@ yarn.lock
 /dist
 /dist-js
 mas.provisionprofile
+.env
+.DS_Store

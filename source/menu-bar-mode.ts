@@ -1,4 +1,4 @@
-import {app, globalShortcut, BrowserWindow, Menu} from 'electron';
+import {app, globalShortcut, BrowserWindow} from 'electron';
 import {is} from 'electron-util';
 import config from './config';
 import tray from './tray';
@@ -6,30 +6,13 @@ import tray from './tray';
 const menuBarShortcut = 'Command+Shift+y';
 
 export function toggleMenuBarMode(window: BrowserWindow): void {
-	const isEnabled = config.get('menuBarMode');
-	const menuItem = Menu.getApplicationMenu()!.getMenuItemById('menuBarMode');
+	window.setVisibleOnAllWorkspaces(false);
 
-	menuItem.checked = isEnabled;
+	globalShortcut.unregister(menuBarShortcut);
 
-	window.setVisibleOnAllWorkspaces(isEnabled);
-
-	if (isEnabled) {
-		globalShortcut.register(menuBarShortcut, () => {
-			if (window.isVisible()) {
-				window.hide();
-			} else {
-				window.show();
-			}
-		});
-
-		tray.create(window);
-	} else {
-		globalShortcut.unregister(menuBarShortcut);
-
-		tray.destroy();
-		app.dock.show();
-		window.show();
-	}
+	tray.destroy();
+	app.dock.show();
+	window.show();
 }
 
 export function setUpMenuBarMode(window: BrowserWindow): void {

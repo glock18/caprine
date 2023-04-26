@@ -1,164 +1,146 @@
-import config from './config';
-import selectors from './browser/selectors';
+// import selectors from './browser/selectors';
 
-const conversationId = 'conversationWindow';
-const disabledVideoId = 'disabled_autoplay';
+// const conversationId = 'conversationWindow';
+// const disabledVideoId = 'disabled_autoplay';
 
-export function toggleVideoAutoplay(): void {
-	if (config.get('autoplayVideos')) {
-		// Stop the observers
-		conversationDivObserver.disconnect();
-		videoObserver.disconnect();
+// // Hold reference to videos the user has started playing
+// // Enables us to check if the video is autoplaying, for example, when changing conversation
+// const playedVideos: HTMLVideoElement[] = [];
 
-		// Revert previous changes
-		enableVideoAutoplay();
-	} else {
-		// Start the observer
-		startConversationWindowObserver();
+// function disableVideoAutoplay(videos: NodeListOf<HTMLVideoElement>): void {
+// 	for (const video of videos) {
+// 		// Don't disable currently playing videos
+// 		if (playedVideos.includes(video)) {
+// 			continue;
+// 		}
 
-		// Trigger once manually before observers kick in
-		disableVideoAutoplay(getVideos());
-	}
-}
+// 		const firstParent = video.parentElement!;
 
-// Hold reference to videos the user has started playing
-// Enables us to check if the video is autoplaying, for example, when changing conversation
-const playedVideos: HTMLVideoElement[] = [];
+// 		// Video parent element which has a snapshot of the video as a background image
+// 		const parentWithBackground = video.parentElement!.parentElement!.parentElement!;
 
-function disableVideoAutoplay(videos: NodeListOf<HTMLVideoElement>): void {
-	for (const video of videos) {
-		// Don't disable currently playing videos
-		if (playedVideos.includes(video)) {
-			continue;
-		}
+// 		// Hold reference to the background parent so we can revert our changes
+// 		const parentWithBackgroundParent = parentWithBackground.parentElement!;
 
-		const firstParent = video.parentElement!;
+// 		// Reference to the original play icon on top of the video
+// 		const playIcon = video.nextElementSibling!.nextElementSibling! as HTMLElement;
+// 		// If the video is playing, the icon is hidden
+// 		playIcon.classList.remove('hidden_elem');
 
-		// Video parent element which has a snapshot of the video as a background image
-		const parentWithBackground = video.parentElement!.parentElement!.parentElement!;
+// 		// Set the `id` so we can easily trigger a click-event when reverting changes
+// 		playIcon.setAttribute('id', disabledVideoId);
 
-		// Hold reference to the background parent so we can revert our changes
-		const parentWithBackgroundParent = parentWithBackground.parentElement!;
+// 		const {
+// 			style: {width, height}
+// 		} = firstParent;
 
-		// Reference to the original play icon on top of the video
-		const playIcon = video.nextElementSibling!.nextElementSibling! as HTMLElement;
-		// If the video is playing, the icon is hidden
-		playIcon.classList.remove('hidden_elem');
+// 		const style = parentWithBackground.style || window.getComputedStyle(parentWithBackground);
+// 		const backgroundImageSrc = style.backgroundImage.slice(4, -1).replace(/"/g, '');
 
-		// Set the `id` so we can easily trigger a click-event when reverting changes
-		playIcon.setAttribute('id', disabledVideoId);
+// 		// Create the image to replace the video as a placeholder
+// 		const image = document.createElement('img');
+// 		image.setAttribute('src', backgroundImageSrc);
+// 		image.classList.add('disabledAutoPlayImgTopRadius');
 
-		const {
-			style: {width, height}
-		} = firstParent;
+// 		// If it's a video without a source title bar at the bottom,
+// 		// round the bottom part of the video
+// 		if (parentWithBackgroundParent.childElementCount === 1) {
+// 			image.classList.add('disabledAutoPlayImgBottomRadius');
+// 		}
 
-		const style = parentWithBackground.style || window.getComputedStyle(parentWithBackground);
-		const backgroundImageSrc = style.backgroundImage.slice(4, -1).replace(/"/g, '');
+// 		image.setAttribute('height', height);
+// 		image.setAttribute('width', width);
 
-		// Create the image to replace the video as a placeholder
-		const image = document.createElement('img');
-		image.setAttribute('src', backgroundImageSrc);
-		image.classList.add('disabledAutoPlayImgTopRadius');
+// 		// Create a seperate instance of the play icon
+// 		// Clone the existing icon to get the original events
+// 		// Without creating a new icon, Messenger auto-hides the icon when scrolled to the video
+// 		const copiedPlayIcon = playIcon.cloneNode(true) as HTMLElement;
 
-		// If it's a video without a source title bar at the bottom,
-		// round the bottom part of the video
-		if (parentWithBackgroundParent.childElementCount === 1) {
-			image.classList.add('disabledAutoPlayImgBottomRadius');
-		}
+// 		// Remove the image and the new play icon and append the original divs
+// 		// We can enable autoplay again by triggering this event
+// 		copiedPlayIcon.addEventListener('play', () => {
+// 			image.remove();
+// 			copiedPlayIcon.remove();
+// 			parentWithBackgroundParent.prepend(parentWithBackground);
+// 		});
 
-		image.setAttribute('height', height);
-		image.setAttribute('width', width);
+// 		// Separate handler for `click` so we know if it was the user who played the video
+// 		copiedPlayIcon.addEventListener('click', () => {
+// 			playedVideos.push(video);
+// 			const event = new Event('play');
+// 			copiedPlayIcon.dispatchEvent(event);
+// 			// Sometimes the video doesn't start playing even though we trigger the click event
+// 			// As a workaround, check if the video didn't start playing and manually trigger
+// 			// the click event
+// 			setTimeout(() => {
+// 				if (video.paused) {
+// 					playIcon.click();
+// 				}
+// 			}, 50);
+// 		});
 
-		// Create a seperate instance of the play icon
-		// Clone the existing icon to get the original events
-		// Without creating a new icon, Messenger auto-hides the icon when scrolled to the video
-		const copiedPlayIcon = playIcon.cloneNode(true) as HTMLElement;
+// 		parentWithBackgroundParent.prepend(image);
+// 		parentWithBackgroundParent.prepend(copiedPlayIcon);
+// 		parentWithBackground.remove();
+// 	}
+// }
 
-		// Remove the image and the new play icon and append the original divs
-		// We can enable autoplay again by triggering this event
-		copiedPlayIcon.addEventListener('play', () => {
-			image.remove();
-			copiedPlayIcon.remove();
-			parentWithBackgroundParent.prepend(parentWithBackground);
-		});
+// // If we previously disabled autoplay on videos,
+// // trigger the `copiedPlayIcon` click event to revert changes
+// function enableVideoAutoplay(): void {
+// 	const playIcons = document.querySelectorAll(`#${disabledVideoId}`);
+// 	for (const icon of playIcons) {
+// 		const event = new Event('play');
+// 		icon.dispatchEvent(event);
+// 	}
+// }
 
-		// Separate handler for `click` so we know if it was the user who played the video
-		copiedPlayIcon.addEventListener('click', () => {
-			playedVideos.push(video);
-			const event = new Event('play');
-			copiedPlayIcon.dispatchEvent(event);
-			// Sometimes the video doesn't start playing even though we trigger the click event
-			// As a workaround, check if the video didn't start playing and manually trigger
-			// the click event
-			setTimeout(() => {
-				if (video.paused) {
-					playIcon.click();
-				}
-			}, 50);
-		});
+// function getVideos(): NodeListOf<HTMLVideoElement> {
+// 	return document.querySelectorAll('video');
+// }
 
-		parentWithBackgroundParent.prepend(image);
-		parentWithBackgroundParent.prepend(copiedPlayIcon);
-		parentWithBackground.remove();
-	}
-}
+// function startConversationWindowObserver(): void {
+// 	conversationDivObserver.observe(document.documentElement, {
+// 		childList: true,
+// 		subtree: true
+// 	});
+// }
 
-// If we previously disabled autoplay on videos,
-// trigger the `copiedPlayIcon` click event to revert changes
-function enableVideoAutoplay(): void {
-	const playIcons = document.querySelectorAll(`#${disabledVideoId}`);
-	for (const icon of playIcons) {
-		const event = new Event('play');
-		icon.dispatchEvent(event);
-	}
-}
+// function startVideoObserver(element: Element): void {
+// 	videoObserver.observe(element, {
+// 		childList: true,
+// 		subtree: true
+// 	});
+// }
 
-function getVideos(): NodeListOf<HTMLVideoElement> {
-	return document.querySelectorAll('video');
-}
+// // A way to hold reference to conversation part of the document
+// // Used to refresh `videoObserver` after the conversation reference is lost
+// let conversationWindow: Element;
+// const conversationDivObserver = new MutationObserver(_ => {
+// 	let conversation = document.querySelector(`#${conversationId}`);
 
-function startConversationWindowObserver(): void {
-	conversationDivObserver.observe(document.documentElement, {
-		childList: true,
-		subtree: true
-	});
-}
+// 	// Fetch it using `querySelector` if no luck with the `conversationId`
+// 	if (!conversation) {
+// 		conversation = document.querySelector(selectors.conversationSelector);
+// 	}
 
-function startVideoObserver(element: Element): void {
-	videoObserver.observe(element, {
-		childList: true,
-		subtree: true
-	});
-}
+// 	// If we have a new reference
+// 	if (conversation && conversationWindow !== conversation) {
+// 		// Add `conversationId` so we know when we've lost the reference to
+// 		// the `conversationWindow` and we can restart the video observer
+// 		conversation.id = conversationId;
+// 		conversationWindow = conversation;
+// 		startVideoObserver(conversationWindow);
+// 	}
+// });
 
-// A way to hold reference to conversation part of the document
-// Used to refresh `videoObserver` after the conversation reference is lost
-let conversationWindow: Element;
-const conversationDivObserver = new MutationObserver(_ => {
-	let conversation = document.querySelector(`#${conversationId}`);
-
-	// Fetch it using `querySelector` if no luck with the `conversationId`
-	if (!conversation) {
-		conversation = document.querySelector(selectors.conversationSelector);
-	}
-
-	// If we have a new reference
-	if (conversation && conversationWindow !== conversation) {
-		// Add `conversationId` so we know when we've lost the reference to
-		// the `conversationWindow` and we can restart the video observer
-		conversation.id = conversationId;
-		conversationWindow = conversation;
-		startVideoObserver(conversationWindow);
-	}
-});
-
-// Refence to mutation observer
-// Only active if the user has set option to disable video autoplay
-const videoObserver = new MutationObserver(_ => {
-	// Select by tag instead of iterating over mutations which is more performant
-	const videos = getVideos();
-	// If videos were added disable autoplay
-	if (videos.length > 0) {
-		disableVideoAutoplay(videos);
-	}
-});
+// // Refence to mutation observer
+// // Only active if the user has set option to disable video autoplay
+// const videoObserver = new MutationObserver(_ => {
+// 	// Select by tag instead of iterating over mutations which is more performant
+// 	const videos = getVideos();
+// 	// If videos were added disable autoplay
+// 	if (videos.length > 0) {
+// 		disableVideoAutoplay(videos);
+// 	}
+// });

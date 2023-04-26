@@ -1,15 +1,10 @@
 {
-	"name": "caprine",
-	"productName": "Caprine",
-	"version": "2.55.1",
-	"description": "Elegant Facebook Messenger desktop app",
+	"name": "chaport",
+	"productName": "Chaport",
+	"version": "2.0.2",
+	"description": "Caprine updated to work with Chaport instead of the Facebook Messenger",
 	"license": "MIT",
 	"repository": "sindresorhus/caprine",
-	"author": {
-		"name": "Sindre Sorhus",
-		"email": "sindresorhus@gmail.com",
-		"url": "https://sindresorhus.com"
-	},
 	"main": "dist-js",
 	"engines": {
 		"node": ">=12"
@@ -20,15 +15,18 @@
 		"test": "npm run lint",
 		"start": "tsc && electron .",
 		"build": "tsc",
-		"release": "np"
+		"release": "np",
+		"compile:mac": "tsc && electron-builder -m",
+		"compile:win": "tsc && electron-builder -w"
 	},
 	"dependencies": {
-		"@sindresorhus/do-not-disturb": "^1.1.0",
+		"dotenv": "^14.2.0",
 		"electron-better-ipc": "^1.1.1",
 		"electron-context-menu": "^2.3.0",
 		"electron-debug": "^3.1.0",
 		"electron-dl": "^3.0.2",
 		"electron-localshortcut": "^3.2.1",
+		"electron-notarize": "^1.1.1",
 		"electron-store": "^6.0.1",
 		"electron-updater": "^4.3.5",
 		"electron-util": "^0.17.0",
@@ -46,7 +44,7 @@
 		"@types/lodash": "^4.14.165",
 		"del-cli": "^3.0.1",
 		"electron": "^10.1.5",
-		"electron-builder": "^22.9.1",
+		"electron-builder": "^22.14.13",
 		"husky": "^4.3.0",
 		"np": "^7.0.0",
 		"stylelint": "^13.8.0",
@@ -83,25 +81,34 @@
 		"releaseDraft": false
 	},
 	"build": {
+		"publish": {
+			"provider": "generic",
+			"url": "https://www.chaport.com/downloads",
+			"channel": "latest"
+		},
 		"files": [
 			"**/*",
 			"!media${/*}"
 		],
 		"asarUnpack": [
-			"static/Icon.png"
+			"static/Icon.png",
+			"static/IconMenuBarTemplate.png",
+			"static/IconMenuBarTemplate@2x.png"
 		],
-		"appId": "com.sindresorhus.caprine",
+		"appId": "com.chaport.chaportdesktop",
+		"afterSign": "scripts/notarize.js",
 		"mac": {
-			"category": "public.app-category.social-networking",
+			"category": "public.app-category.business",
 			"electronUpdaterCompatibility": ">=2.15.0",
-			"darkModeSupport": true,
-			"extendInfo": {
-				"LSUIElement": 1,
-				"NSCameraUsageDescription": "Caprine needs access to your camera.",
-				"NSMicrophoneUsageDescription": "Caprine needs access to your microphone."
-			}
+			"darkModeSupport": false,
+			"hardenedRuntime": true,
+			"gatekeeperAssess": false,
+			"entitlements": "build/entitlements.mac.plist",
+			"entitlementsInherit": "build/entitlements.mac.plist"
 		},
 		"dmg": {
+			"sign": false,
+			"icon": "build/icon.icns",
 			"iconSize": 160,
 			"contents": [
 				{
@@ -123,17 +130,12 @@
 				"snap"
 			],
 			"icon": "build/icons/",
-			"synopsis": "Elegant Facebook Messenger desktop app",
-			"description": "Caprine is an unofficial and privacy focused Facebook Messenger app with many useful features.",
-			"category": "Network;Chat"
+			"synopsis": "Chaport desktop app",
+			"description": "Desktop application for Chaport.",
+			"category": "Business;Chat"
 		},
-		"snap": {
-			"plugs": [
-				"default",
-				"camera",
-				"removable-media"
-			],
-			"publish": "github"
+		"nsis": {
+			"artifactName": "${productName}Setup-${version}.${ext}"
 		},
 		"win": {
 			"verifyUpdateCodeSignature": false,

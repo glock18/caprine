@@ -1,8 +1,7 @@
 import * as path from 'path';
-import {app, Menu, Tray, BrowserWindow, MenuItemConstructorOptions} from 'electron';
+import {app, Menu, Tray, BrowserWindow, MenuItemConstructorOptions, nativeImage} from 'electron';
 import {is} from 'electron-util';
 import config from './config';
-import {toggleMenuBarMode} from './menu-bar-mode';
 
 let tray: Tray | undefined;
 let previousMessageCount = 0;
@@ -35,13 +34,6 @@ export default {
 
 		const macosMenuItems: MenuItemConstructorOptions[] = is.macos ?
 			[
-				{
-					label: 'Disable Menu Bar Mode',
-					click() {
-						config.set('menuBarMode', false);
-						toggleMenuBarMode(win);
-					}
-				},
 				{
 					label: 'Show Dock Icon',
 					type: 'checkbox',
@@ -87,7 +79,7 @@ export default {
 			}
 		]);
 
-		tray = new Tray(getIconPath(false));
+		tray = new Tray(nativeImage.createFromPath(getIconPath(false)));
 
 		tray.setContextMenu(contextMenu);
 
@@ -160,5 +152,7 @@ function getNonMacOSIconName(hasUnreadMessages: boolean): string {
 }
 
 function getMacOSIconName(hasUnreadMessages: boolean): string {
-	return hasUnreadMessages ? 'IconMenuBarUnreadTemplate.png' : 'IconMenuBarTemplate.png';
+	// return hasUnreadMessages ? 'IconTrayUnread.png' : 'IconTray.png';
+	// return hasUnreadMessages ? 'IconMenuBarUnreadTemplate.png' : 'IconMenuBarTemplate.png';
+	return hasUnreadMessages ? 'IconMenuBarTemplate.png' : 'IconMenuBarTemplate.png';
 }

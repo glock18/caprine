@@ -46,16 +46,8 @@ export function showRestartDialog(message: string): void {
 	}
 }
 
-export const messengerDomain = config.get('useWorkChat') ? 'facebook.com' : 'messenger.com';
+export const messengerDomain = 'app.chaport.com';
 
-export function stripTrackingFromUrl(url: string): string {
-	const trackingUrlPrefix = `https://l.${messengerDomain}/l.php`;
-	if (url.startsWith(trackingUrlPrefix)) {
-		url = new URL(url).searchParams.get('u')!;
-	}
-
-	return url;
-}
 
 export const toggleTrayIcon = (): void => {
 	const showTrayIconState = config.get('showTrayIcon');
