@@ -1,15 +1,5 @@
-import {ipcRenderer as ipc} from 'electron-better-ipc';
-import {is} from 'electron-util';
-
-// ipc.answerMain('find', () => {
-// 	const searchBox =
-// 		// Old UI
-// 		document.querySelector<HTMLElement>('._58al') ??
-// 		// Newest UI
-// 		document.querySelector<HTMLElement>('[aria-label="Search Messenger"]');
-
-// 	searchBox!.focus();
-// });
+import { ipcRenderer as ipc } from 'electron-better-ipc';
+import { is } from 'electron-util';
 
 ipc.answerMain('reload', () => {
 	location.reload();
@@ -34,7 +24,7 @@ function renderOverlayIcon(messageCount: number): HTMLCanvasElement {
 	return canvas;
 }
 
-ipc.answerMain('render-overlay-icon', (messageCount: number): {data: string; text: string} => {
+ipc.answerMain('render-overlay-icon', (messageCount: number): { data: string; text: string } => {
 	return {
 		data: renderOverlayIcon(messageCount).toDataURL(),
 		text: String(messageCount)
@@ -76,5 +66,5 @@ window.addEventListener('dblclick', (event: Event) => {
 });
 
 ipc.answerMain('notification-callback', (data: unknown) => {
-	window.postMessage({type: 'notification-callback', data}, '*');
+	window.postMessage({ type: 'notification-callback', data }, '*');
 });

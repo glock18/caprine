@@ -1,5 +1,5 @@
 import * as path from 'path';
-import {readFileSync} from 'fs';
+import { readFileSync } from 'fs';
 import {
 	app,
 	dialog,
@@ -12,21 +12,21 @@ import {
 	MenuItemConstructorOptions,
 	systemPreferences
 } from 'electron';
-import {ipcMain} from 'electron-better-ipc';
-import {autoUpdater} from 'electron-updater';
+import { ipcMain } from 'electron-better-ipc';
+import { autoUpdater } from 'electron-updater';
 import electronDl = require('electron-dl');
 import electronContextMenu = require('electron-context-menu');
 import electronLocalshortcut = require('electron-localshortcut');
 // import electronDebug = require('electron-debug');
-import {is} from 'electron-util';
+import { is } from 'electron-util';
 // import doNotDisturb = require('@sindresorhus/do-not-disturb');
 import updateAppMenu from './menu';
 import config from './config';
 import tray from './tray';
-import {sendAction} from './util';
+import { sendAction } from './util';
 import ensureOnline from './ensure-online';
-import {setUpMenuBarMode} from './menu-bar-mode';
-import {chaportIconPath, chaportMacIcnsPath} from './constants';
+import { setUpMenuBarMode } from './menu-bar-mode';
+import { chaportIconPath, chaportMacIcnsPath } from './constants';
 
 ipcMain.setMaxListeners(100);
 
@@ -53,21 +53,21 @@ if (!is.development && !is.linux) {
 			await autoUpdater.checkForUpdates();
 		}, FOUR_HOURS);
 
-		autoUpdater.on('update-downloaded', ({}, releaseNotes, releaseName) => {
-			const dialogOpts = {
+		autoUpdater.on('update-downloaded', ({}, releaseNotes, releaseName) => { // eslint-disable-line no-empty-pattern
+			const dialogOptions = {
 				type: 'info',
 				buttons: ['Restart', 'Later'],
 				title: 'Application Update',
 				message: process.platform === 'win32' ? releaseNotes : releaseName,
 				detail: 'A new version has been downloaded. Restart the application to apply the updates.'
-			}
+			};
 
-			dialog.showMessageBox(dialogOpts).then((returnValue) => {
+			dialog.showMessageBox(dialogOptions).then((returnValue) => { // eslint-disable-line promise/prefer-await-to-then
 				if (returnValue.response === 0) {
 					setImmediate(() => {
-						app.removeAllListeners("window-all-closed");
-						app.removeAllListeners("before-quit");
-						if (mainWindow != null) {
+						app.removeAllListeners('window-all-closed');
+						app.removeAllListeners('before-quit');
+						if (mainWindow != null) { // eslint-disable-line no-eq-null, eqeqeq
 							mainWindow.removeAllListeners('close');
 							mainWindow.close();
 						}
@@ -75,7 +75,7 @@ if (!is.development && !is.linux) {
 						autoUpdater.quitAndInstall(false);
 					});
 				}
-			})
+			});
 		});
 		// autoUpdater.on('before-quit-for-update', rememberWindowStateAndQuit);
 		await autoUpdater.checkForUpdates();
@@ -86,7 +86,7 @@ let mainWindow: BrowserWindow;
 let isQuitting = false;
 let previousMessageCount = 0;
 let dockMenu: Menu;
-let isDNDEnabled = false;
+const isDNDEnabled = false;
 
 if (!app.requestSingleInstanceLock()) {
 	app.quit();
@@ -109,10 +109,6 @@ app.on('ready', () => {
 		mainWindow.setPosition(x, y);
 	});
 });
-
-// function getMessageCount(conversations: Conversation[]): number {
-// 	return conversations.filter(({unread}) => unread).length;
-// }
 
 async function updateBadge(messageCount: number): Promise<void> {
 	if (is.macos || is.linux) {
@@ -143,20 +139,10 @@ async function updateBadge(messageCount: number): Promise<void> {
 
 	tray.update(messageCount);
 
-	if (is.windows) {
-		if (!config.get('showUnreadBadge') || messageCount === 0) {
-			mainWindow.setOverlayIcon(null, '');
-		// } else {
-		// 	// Delegate drawing of overlay icon to renderer process
-		// 	updateOverlayIcon(await ipcMain.callRenderer(mainWindow, 'render-overlay-icon', messageCount));
-		}
+	if (is.windows && (!config.get('showUnreadBadge') || messageCount === 0)) {
+		mainWindow.setOverlayIcon(null, '');
 	}
 }
-
-// function updateOverlayIcon({data, text}: {data: string; text: string}): void {
-// 	const img = nativeImage.createFromDataURL(data);
-// 	mainWindow.setOverlayIcon(img, text);
-// }
 
 function updateTrayIcon(): void {
 	if (!config.get('showTrayIcon') || config.get('quitOnWindowClose')) {
@@ -168,22 +154,6 @@ function updateTrayIcon(): void {
 
 ipcMain.answerRenderer('update-tray-icon', updateTrayIcon);
 
-// interface BeforeSendHeadersResponse {
-// 	cancel?: boolean;
-// 	requestHeaders?: Record<string, string>;
-// }
-
-// interface OnSendHeadersDetails {
-// 	id: number;
-// 	url: string;
-// 	method: string;
-// 	webContentsId?: number;
-// 	resourceType: string;
-// 	referrer: string;
-// 	timestamp: number;
-// 	requestHeaders: Record<string, string>;
-// }
-
 function setNotificationsMute(status: boolean): void {
 	const label = 'Mute Notifications';
 	const muteMenuItem = Menu.getApplicationMenu()!.getMenuItemById('mute-notifications');
@@ -192,7 +162,7 @@ function setNotificationsMute(status: boolean): void {
 	muteMenuItem.checked = status;
 
 	if (is.macos) {
-		const item = dockMenu.items.find(x => x.label === label);
+		const item = dockMenu.items.find((x) => x.label === label);
 		item!.checked = status;
 	}
 }
@@ -227,11 +197,11 @@ function createMainWindow(): BrowserWindow {
 	});
 
 	// Note: {} is a silly TS way to skip an unused argument ('event' here)
-	win.on('page-title-updated', ({}, title: string, explicitSet: boolean) => {
+	win.on('page-title-updated', ({}, title: string, explicitSet: boolean) => { // eslint-disable-line no-empty-pattern
 		if (explicitSet && title) {
 			const match = title.match(/^\((\d+)\)/);
 			if (match) {
-				const unreadCount = parseInt(match[1]);
+				const unreadCount = Number.parseInt(match[1], 10);
 				updateBadge(unreadCount);
 				// app.setBadgeCount(unreadCount);
 			} else {
@@ -262,7 +232,7 @@ function createMainWindow(): BrowserWindow {
 
 	win.loadURL(mainURL);
 
-	win.on('close', event => {
+	win.on('close', (event) => {
 		if (config.get('quitOnWindowClose')) {
 			app.quit();
 			return;
@@ -300,8 +270,8 @@ function createMainWindow(): BrowserWindow {
 	});
 
 	win.on('resize', () => {
-		const {isMaximized} = config.get('lastWindowState');
-		config.set('lastWindowState', {...win.getNormalBounds(), isMaximized});
+		const { isMaximized } = config.get('lastWindowState');
+		config.set('lastWindowState', { ...win.getNormalBounds(), isMaximized });
 	});
 
 	win.on('maximize', () => {
@@ -357,7 +327,7 @@ function createMainWindow(): BrowserWindow {
 				return;
 			}
 
-			const items = conversations.map(({label, icon}, index) => {
+			const items = conversations.map(({ label, icon }, index) => {
 				return {
 					label: `${label}`,
 					icon: nativeImage.createFromDataURL(icon),
@@ -368,11 +338,11 @@ function createMainWindow(): BrowserWindow {
 				};
 			});
 
-			app.dock.setMenu(Menu.buildFromTemplate([firstItem, {type: 'separator'}, ...items]));
+			app.dock.setMenu(Menu.buildFromTemplate([firstItem, { type: 'separator' }, ...items]));
 		});
 	}
 
-	const {webContents} = mainWindow;
+	const { webContents } = mainWindow;
 
 	webContents.on('dom-ready', async () => {
 		await updateAppMenu();
@@ -388,19 +358,6 @@ function createMainWindow(): BrowserWindow {
 			mainWindow.show();
 		}
 
-		// if (is.macos) {
-			// ipcMain.answerRenderer('update-dnd-mode', async (initialSoundsValue: boolean) => {
-			// 	doNotDisturb.on('change', (doNotDisturb: boolean) => {
-			// 		isDNDEnabled = doNotDisturb;
-			// 		ipcMain.callRenderer(mainWindow, 'toggle-sounds', {checked: isDNDEnabled ? false : initialSoundsValue});
-			// 	});
-
-			// 	isDNDEnabled = await doNotDisturb.isEnabled();
-
-			// 	return isDNDEnabled ? false : initialSoundsValue;
-			// });
-		// }
-
 		setNotificationsMute(await ipcMain.callRenderer(mainWindow, 'toggle-mute-notifications', {
 			defaultStatus: config.get('notificationsMuted')
 		}));
@@ -410,28 +367,9 @@ function createMainWindow(): BrowserWindow {
 		);
 	});
 
-	// eslint-disable-next-line max-params
-	// webContents.on('new-window', async (event: Event, url, frameName, _disposition, options) => {
-	// 	event.preventDefault();
-
-	// 	if (url === 'about:blank' || url === 'about:blank#blocked') {
-	// 		if (frameName !== 'about:blank') {
-	// 			// Voice/video call popup
-	// 			options.show = true;
-	// 			options.titleBarStyle = 'default';
-	// 			options.webPreferences = options.webPreferences ?? {};
-	// 			options.webPreferences.nodeIntegration = false;
-	// 			options.webPreferences.preload = path.join(__dirname, 'browser-call.js');
-	// 			(event as any).newGuest = new BrowserWindow(options);
-	// 		}
-	// 	} else {
-	// 		await shell.openExternal(url);
-	// 	}
-	// });
-
 	webContents.on('will-navigate', async (event, url) => {
 		const isInternal = (url: string): boolean => {
-			const {hostname} = new URL(url);
+			const { hostname } = new URL(url);
 			return hostname.endsWith('.chaport.com');
 		};
 
@@ -480,44 +418,7 @@ function rememberWindowStateAndQuit() {
 	// Checking whether the window exists to work around an Electron race issue:
 	// https://github.com/sindresorhus/caprine/issues/809
 	if (mainWindow) {
-		const {isMaximized} = config.get('lastWindowState');
-		config.set('lastWindowState', {...mainWindow.getNormalBounds(), isMaximized});
+		const { isMaximized } = config.get('lastWindowState');
+		config.set('lastWindowState', { ...mainWindow.getNormalBounds(), isMaximized });
 	}
 }
-
-// const notifications = new Map();
-
-// ipcMain.answerRenderer(
-// 	'notification',
-// 	({id, title, body, icon, silent}: {id: number; title: string; body: string; icon: string; silent: boolean}) => {
-// 		const notification = new Notification({
-// 			title,
-// 			body: config.get('notificationMessagePreview') ? body : 'You have a new message',
-// 			hasReply: true,
-// 			icon: nativeImage.createFromDataURL(icon),
-// 			silent
-// 		});
-
-// 		notifications.set(id, notification);
-
-// 		notification.on('click', () => {
-// 			sendAction('notification-callback', {callbackName: 'onclick', id});
-
-// 			notifications.delete(id);
-// 		});
-
-// 		notification.on('reply', (_event, reply: string) => {
-// 			// We use onclick event used by messenger to go to the right convo
-// 			sendBackgroundAction('notification-reply-callback', {callbackName: 'onclick', id, reply});
-
-// 			notifications.delete(id);
-// 		});
-
-// 		notification.on('close', () => {
-// 			sendBackgroundAction('notification-callback', {callbackName: 'onclose', id});
-// 			notifications.delete(id);
-// 		});
-
-// 		notification.show();
-// 	}
-// );

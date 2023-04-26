@@ -61,7 +61,15 @@
 			"import/no-anonymous-default-export": "off",
 			"@typescript-eslint/no-floating-promises": "off",
 			"@typescript-eslint/no-loop-func": "off",
-			"@typescript-eslint/no-non-null-assertion": "off"
+			"@typescript-eslint/no-non-null-assertion": "off",
+			"capitalized-comments": "off",
+			"comma-dangle": "off",
+			"@typescript-eslint/comma-dangle": "off",
+			"@typescript-eslint/prefer-regexp-exec": "off",
+			"unicorn/no-abusive-eslint-disable": "off",
+			"object-curly-spacing": ["error", "always"],
+			"@typescript-eslint/object-curly-spacing": ["error", "always"],
+			"arrow-parens": ["error", "always"]
 		}
 	},
 	"stylelint": {

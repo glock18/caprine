@@ -1,4 +1,4 @@
-import {session, MenuItemConstructorOptions} from 'electron';
+import { session, MenuItemConstructorOptions } from 'electron';
 import config from './config';
 
 const languageToCode = new Map<string, string>([
@@ -65,7 +65,7 @@ function getSpellCheckerLanguages(): MenuItemConstructorOptions[] {
 	for (const language of languagesChecked) {
 		if (!availableLanguages.includes(language)) {
 			// Remove it since it's not in the spell checker dictionary.
-			languagesChecked = languagesChecked.filter(currentLang => currentLang !== language);
+			languagesChecked = languagesChecked.filter((currentLang) => currentLang !== language);
 			config.set('spellCheckerLanguages', languagesChecked);
 		}
 	}

@@ -124,6 +124,6 @@ const schema: Store.Schema<StoreType> = {
 	}
 };
 
-const store = new Store<StoreType>({schema});
+const store = new Store<StoreType>({ schema });
 
 export default store;

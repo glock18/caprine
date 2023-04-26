@@ -1,5 +1,5 @@
-import {app, globalShortcut, BrowserWindow} from 'electron';
-import {is} from 'electron-util';
+import { app, globalShortcut, BrowserWindow } from 'electron';
+import { is } from 'electron-util';
 import config from './config';
 import tray from './tray';
 

@@ -1,6 +1,6 @@
-import {app, BrowserWindow, dialog, Menu} from 'electron';
-import {ipcMain} from 'electron-better-ipc';
-import {is} from 'electron-util';
+import { app, BrowserWindow, dialog, Menu } from 'electron';
+import { ipcMain } from 'electron-better-ipc';
+import { is } from 'electron-util';
 import config from './config';
 import tray from './tray';
 
@@ -47,7 +47,6 @@ export function showRestartDialog(message: string): void {
 }
 
 export const messengerDomain = 'app.chaport.com';
-
 
 export const toggleTrayIcon = (): void => {
 	const showTrayIconState = config.get('showTrayIcon');

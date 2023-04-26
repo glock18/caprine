@@ -1,10 +1,10 @@
-import {app, shell, Menu, MenuItemConstructorOptions, dialog} from 'electron';
+import { app, shell, Menu, MenuItemConstructorOptions, dialog } from 'electron';
 import {
 	is,
 	appMenu,
 } from 'electron-util';
 import config from './config';
-import {sendAction, toggleTrayIcon, toggleLaunchMinimized} from './util';
+import { sendAction, toggleTrayIcon, toggleLaunchMinimized } from './util';
 
 export default async function updateMenu(): Promise<Menu> {
 	const preferencesSubmenu: MenuItemConstructorOptions[] = [

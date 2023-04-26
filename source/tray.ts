@@ -1,6 +1,6 @@
 import * as path from 'path';
-import {app, Menu, Tray, BrowserWindow, MenuItemConstructorOptions, nativeImage} from 'electron';
-import {is} from 'electron-util';
+import { app, Menu, Tray, BrowserWindow, MenuItemConstructorOptions, nativeImage } from 'electron';
+import { is } from 'electron-util';
 import config from './config';
 
 let tray: Tray | undefined;
@@ -152,7 +152,5 @@ function getNonMacOSIconName(hasUnreadMessages: boolean): string {
 }
 
 function getMacOSIconName(hasUnreadMessages: boolean): string {
-	// return hasUnreadMessages ? 'IconTrayUnread.png' : 'IconTray.png';
-	// return hasUnreadMessages ? 'IconMenuBarUnreadTemplate.png' : 'IconMenuBarTemplate.png';
 	return hasUnreadMessages ? 'IconMenuBarTemplate.png' : 'IconMenuBarTemplate.png';
 }

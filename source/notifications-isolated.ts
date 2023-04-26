@@ -2,9 +2,9 @@
 	const notifications = new Map<number, Notification>();
 
 	// Handle events sent from the browser process
-	window.addEventListener('message', ({data: {type, data}}) => {
+	window.addEventListener('message', ({ data: { type, data } }) => {
 		if (type === 'notification-callback') {
-			const {callbackName, id}: NotificationCallback = data;
+			const { callbackName, id }: NotificationCallback = data;
 			const notification = notifications.get(id);
 
 			if (!notification) {
@@ -21,7 +21,7 @@
 		}
 
 		if (type === 'notification-reply-callback') {
-			const {callbackName, id, previousConversation, reply}: NotificationReplyCallback = data;
+			const { callbackName, id, previousConversation, reply }: NotificationReplyCallback = data;
 			const notification = notifications.get(id);
 
 			if (!notification) {
@@ -33,7 +33,7 @@
 			}
 
 			notifications.delete(id);
-			window.postMessage({type: 'notification-reply', data: {previousConversation, reply}}, '*');
+			window.postMessage({ type: 'notification-reply', data: { previousConversation, reply } }, '*');
 		}
 	});
 
@@ -46,7 +46,7 @@
 			constructor(title: string, options: NotificationOptions) {
 				// According to https://github.com/sindresorhus/caprine/pull/637, the Notification
 				// constructor can be called with non-string title and body.
-				let {body} = options;
+				let { body } = options;
 				const bodyProps = (body as any).props;
 				body = bodyProps ? bodyProps.content[0] : options.body;
 
@@ -77,5 +77,5 @@
 		Notification
 	);
 
-	Object.assign(window, {Notification: AugmentedNotification});
+	Object.assign(window, { Notification: AugmentedNotification });
 })(window, Notification);
